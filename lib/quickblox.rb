@@ -4,7 +4,6 @@ require "json"
 
 class Quickblox
   QB_ENDPOINT = "https://api.quickblox.com".freeze
-  CONTENT_TYPE = "content-type".freeze
   QB_HEADER_API_VERSION = "QuickBlox-REST-API-Version".freeze
 
   attr :auth_key,
@@ -39,11 +38,8 @@ class Quickblox
 
     response = Requests.post(
       QB_ENDPOINT + "/session.json",
-      headers: {
-        CONTENT_TYPE => "application/json",
-        QB_HEADER_API_VERSION => "0.1.1"
-      },
-      data: data.to_json
+      headers: { QB_HEADER_API_VERSION => "0.1.1" },
+      data: data
     )
 
     if response.status == 201
