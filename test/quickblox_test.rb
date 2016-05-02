@@ -66,7 +66,7 @@ test "create session" do
       "content-length"=>["259"],
       "connection"=>["keep-alive"]
     },
-    "{\"session\":{\"_id\":\"572793c0a28f9a658800002a\",\"application_id\":35265,\"created_at\":\"2016-05-02T17:52:00Z\",\"device_id\":0,\"nonce\":29601,\"token\":\"9b273f0c2747dd74cf785d6ea55dcf0fcb54c022\",\"ts\":1462211496,\"updated_at\":\"2016-05-02T17:52:00Z\",\"user_id\":0,\"id\":18862}}"
+    "{\"session\":{\"_id\":\"572793c0a28f9a658800002a\",\"application_id\":35265,\"created_at\":\"2016-05-02T17:52:00Z\",\"device_id\":0,\"nonce\":29601,\"token\":\"le-token-stuff\",\"ts\":1462211496,\"updated_at\":\"2016-05-02T17:52:00Z\",\"user_id\":0,\"id\":18862}}"
   )
 
   assert qb.session.nil?
@@ -74,6 +74,6 @@ test "create session" do
   stub(Requests, :request, mock_response) { qb.create_session }
 
   assert qb.session
-  assert_equal "9b273f0c2747dd74cf785d6ea55dcf0fcb54c022", qb.session.fetch("token")
+  assert_equal "le-token-stuff", qb.session.fetch("token")
 end
 
