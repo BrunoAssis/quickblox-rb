@@ -13,5 +13,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "requests"
 
   s.add_development_dependency "cutest"
+  s.add_development_dependency "mocoso"
 end
 
