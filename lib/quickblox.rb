@@ -15,8 +15,8 @@ class Quickblox
        :session
 
   def initialize(**args)
-    @auth_key        = args.fetch(:auth_key)
-    @auth_secret     = args.fetch(:auth_secret)
+    @auth_key       = args.fetch(:auth_key)
+    @auth_secret    = args.fetch(:auth_secret)
     @application_id = args.fetch(:application_id)
     @email          = args[:email]
     @password       = args[:password]
