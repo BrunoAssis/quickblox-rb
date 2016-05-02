@@ -5,6 +5,7 @@ require "json"
 class Quickblox
   QB_ENDPOINT = "https://api.quickblox.com".freeze
   QB_HEADER_API_VERSION = "QuickBlox-REST-API-Version".freeze
+  QB_HEADER_TOKEN = "QB-Token".freeze
 
   attr :auth_key,
        :auth_secret,
@@ -47,6 +48,24 @@ class Quickblox
     end
   end
 
+  def transcript(dialog_id:)
+    response = Requests.get(
+      QB_ENDPOINT + "/chat/Message.json",
+      headers: {
+        QB_HEADER_API_VERSION => "0.1.1",
+        QB_HEADER_TOKEN => session_token
+      },
+      params: {
+        chat_dialog_id: dialog_id,
+        mark_as_read: 0
+      }
+    )
+
+    if response.status == 200
+      response.json
+    end
+  end
+
 private
 
   def sign(data)
@@ -57,6 +76,10 @@ private
 
     sha1 = OpenSSL::Digest::SHA1.new
     OpenSSL::HMAC.hexdigest(sha1, auth_secret, normalized_string)
+  end
+
+  def session_token
+    (@session || create_session).fetch("token")
   end
 end
 
