@@ -26,6 +26,7 @@ module Quickblox::Models
     attribute :email
     attribute :login
     attribute :phone
+    attribute :tags
 
     def self.build(hash)
       email = hash.fetch("email") || JSON.parse(hash.fetch("custom_data")).fetch("email")
@@ -34,7 +35,8 @@ module Quickblox::Models
         full_name: hash.fetch("full_name"),
         email: email,
         login: hash.fetch("login"),
-        phone: hash.fetch("phone")
+        phone: hash.fetch("phone"),
+        tags: hash.fetch("user_tags")
       )
     end
   end
