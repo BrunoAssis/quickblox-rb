@@ -49,11 +49,8 @@ class Quickblox::API
 
     if response.status == 201
       session = response.json.fetch("session")
-      @session = Quickblox::Models::Session.new(
-        token: session.fetch("token"),
-        user_id: session.fetch("user_id"),
-        expiration: response.headers.fetch(QB_HEADER_EXPIRATION).first
-      )
+      session["expiration"] = response.headers.fetch(QB_HEADER_EXPIRATION).first
+      @session = Quickblox::Models::Session.build(session)
     end
   end
 
