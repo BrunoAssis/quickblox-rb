@@ -38,5 +38,38 @@ module Quickblox::Models
       )
     end
   end
+
+  class Chat
+    include Silueta
+
+    attribute :messages
+    attribute :buyer
+    attribute :seller
+
+    def self.build(messages, buyer: nil, seller: nil)
+      message_models = []
+      if buyer && seller
+        message_models = messages.map do |message|
+          Quickblox::Models::Message.new(
+            created_at: message.fetch("created_at"),
+            text: message.fetch("message"),
+            dialog_id: message.fetch("chat_dialog_id"),
+            sender: (message.fetch("sender_id") == buyer.id ? buyer : seller)
+          )
+        end
+      end
+
+      new(messages: message_models, buyer: buyer, seller: seller)
+    end
+  end
+
+  class Message
+    include Silueta
+
+    attribute :created_at
+    attribute :text
+    attribute :dialog_id
+    attribute :sender
+  end
 end
 

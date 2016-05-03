@@ -2,6 +2,7 @@ require "cutest"
 require "mocoso"
 require "quickblox"
 require "date"
+require_relative "quickblox_responses"
 
 include Mocoso
 
@@ -51,7 +52,7 @@ test "#create_session" do
   mock_response = Requests::Response.new(
     201,
     { "qb-token-expirationdate" => ["2016-05-02 19:52:00 UTC"] },
-    "{\"session\":{\"_id\":\"572793c0a28f9a658800002a\",\"application_id\":35265,\"created_at\":\"2016-05-02T17:52:00Z\",\"device_id\":0,\"nonce\":29601,\"token\":\"le-token-stuff\",\"ts\":1462211496,\"updated_at\":\"2016-05-02T17:52:00Z\",\"user_id\":0,\"id\":18862}}"
+    QB_RESPONSES.fetch(:session)
   )
 
   assert qb.session.nil?
@@ -95,11 +96,7 @@ test "#find_user" do
     password: "foobarbaz"
   )
 
-  mock_response = Requests::Response.new(
-    200,
-    {},
-    "{\"user\":{\"id\":900,\"owner_id\":45,\"full_name\":\"Mr One\",\"email\":\"mister@one.com\",\"login\":\"One\",\"phone\":\"1133445566\",\"website\":null,\"created_at\":\"2016-02-10T12:07:50Z\",\"updated_at\":\"2016-03-16T17:42:27Z\",\"last_request_at\":\"2016-03-17T12:34:00Z\",\"external_user_id\":null,\"facebook_id\":null,\"twitter_id\":null,\"blob_id\":null,\"custom_data\":null,\"twitter_digits_id\":null,\"user_tags\":\"tag1,tag2\"}}"
-  )
+  mock_response = Requests::Response.new(200, {}, QB_RESPONSES.fetch(:user))
 
   user = stub(Requests, :request, mock_response) do
     stub(qb, :session_token, "token") { qb.find_user(user_id: 900) }
@@ -112,5 +109,40 @@ test "#find_user" do
   assert_equal "Mr One", user.full_name
   assert_equal "1133445566", user.phone
   assert_equal "One", user.login
+end
+
+test "#chat_transcript" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
+  )
+
+  mock_response = Requests::Response.new(200, {}, QB_RESPONSES.fetch(:messages))
+
+  mock_user = Quickblox::Models::User.new(
+    id: 12243767,
+    email: "bar@foo.com",
+    full_name: "User",
+  )
+
+  chat = stub(Requests, :request, mock_response) do
+    stub(qb, :find_user,  mock_user) do
+      stub(qb, :session_token, "token") { qb.chat_transcript(dialog_id: "5727676fa28f9a49") }
+    end
+  end
+
+  assert chat
+  assert_equal Quickblox::Models::Chat, chat.class
+  assert_equal mock_user, chat.buyer
+  assert_equal mock_user, chat.seller
+  assert_equal 1, chat.messages.size
+
+  message = chat.messages.first
+  assert message
+  assert_equal Quickblox::Models::Message, message.class
+  assert_equal mock_user, message.sender
 end
 

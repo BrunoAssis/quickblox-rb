@@ -71,7 +71,7 @@ class Quickblox::API
     end
   end
 
-  def transcript(dialog_id:)
+  def chat_transcript(dialog_id:)
     response = Requests.get(
       QB_ENDPOINT + "/chat/Message.json",
       headers: {
@@ -85,7 +85,14 @@ class Quickblox::API
     )
 
     if response.status == 200
-      response.json
+      messages = response.json.fetch("items")
+
+      buyer, seller = [
+        find_user(user_id: messages.first.fetch("sender_id")),
+        find_user(user_id: messages.first.fetch("recipient_id"))
+      ]
+
+      Quickblox::Models::Chat.build(messages, buyer: buyer, seller: seller)
     end
   end
 
