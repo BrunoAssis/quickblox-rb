@@ -54,9 +54,9 @@ class Quickblox::API
     end
   end
 
-  def find_user(user_id:)
+  def get_user(id:)
     response = Requests.get(
-      QB_ENDPOINT + "/users/#{user_id}.json",
+      QB_ENDPOINT + "/users/#{id}.json",
       headers: {
         QB_HEADER_API_VERSION => "0.1.1",
         QB_HEADER_TOKEN => session_token

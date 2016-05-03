@@ -87,7 +87,7 @@ test "#last_response" do
   assert_equal mock_response, qb.last_response
 end
 
-test "#find_user" do
+test "#get_user" do
   qb = Quickblox::API.new(
     auth_key: "AUTH_KEY",
     auth_secret: "AUTH_SECRET",
@@ -99,7 +99,7 @@ test "#find_user" do
   mock_response = Requests::Response.new(200, {}, QB_RESPONSES.fetch(:user))
 
   user = stub(Requests, :request, mock_response) do
-    stub(qb, :session_token, "token") { qb.find_user(user_id: 900) }
+    stub(qb, :session_token, "token") { qb.get_user(id: 900) }
   end
 
   assert user
