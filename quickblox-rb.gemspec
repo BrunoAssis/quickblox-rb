@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "quickblox-rb"
-  s.version = "0.1.0"
+  s.version = "0.1.1"
   s.summary = "Ruby gem to work with Quickblox API"
   s.description = s.summary
   s.authors = ["Lucas Tolchinsky"]
