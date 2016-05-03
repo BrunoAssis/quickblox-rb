@@ -37,7 +37,7 @@ scope "initialization" do
   end
 end
 
-test "create session" do
+test "#create_session" do
   qb = Quickblox::API.new(
     auth_key: "AUTH_KEY",
     auth_secret: "AUTH_SECRET",
