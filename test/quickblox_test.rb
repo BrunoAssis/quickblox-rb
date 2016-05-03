@@ -6,7 +6,7 @@ include Mocoso
 
 scope "initialization" do
   test "with application credentials" do
-    qb = Quickblox.new(
+    qb = Quickblox::API.new(
       auth_key: "AUTH_KEY",
       auth_secret: "AUTH_SECRET",
       application_id: 1234,
@@ -20,7 +20,7 @@ scope "initialization" do
   end
 
   test "with user credentials" do
-    qb = Quickblox.new(
+    qb = Quickblox::API.new(
       auth_key: "AUTH_KEY",
       auth_secret: "AUTH_SECRET",
       application_id: 1234,
@@ -37,7 +37,7 @@ scope "initialization" do
 end
 
 test "create session" do
-  qb = Quickblox.new(
+  qb = Quickblox::API.new(
     auth_key: "AUTH_KEY",
     auth_secret: "AUTH_SECRET",
     application_id: 1234,
@@ -46,26 +46,10 @@ test "create session" do
   )
 
   # This is a real life example of a response to POST /session.json
+  # We don't really care about the headers.
   mock_response = Requests::Response.new(
     201,
-    {
-      "access-control-allow-origin"=>["*"],
-      "cache-control"=>["max-age=0, private, must-revalidate"],
-      "content-type"=>["application/json; charset=utf-8"],
-      "date"=>["Mon, 02 May 2016 17:52:01 GMT"],
-      "etag"=>["\"442ceb087b8b83fee1ba7f28e082caca\""],
-      "qb-token-expirationdate"=>["2016-05-02 19:52:00 UTC"],
-      "quickblox-rest-api-version"=>["0.1.1"],
-      "server"=>["nginx/1.8.1"],
-      "status"=>["201 Created"],
-      "strict-transport-security"=>["max-age=15768000;"],
-      "x-rack-cache"=>["invalidate, pass"],
-      "x-request-id"=>["2d7b3f554389b95e8561d89fc77104bd"],
-      "x-runtime"=>["0.014038"],
-      "x-ua-compatible"=>["IE=Edge,chrome=1"],
-      "content-length"=>["259"],
-      "connection"=>["keep-alive"]
-    },
+    {},
     "{\"session\":{\"_id\":\"572793c0a28f9a658800002a\",\"application_id\":35265,\"created_at\":\"2016-05-02T17:52:00Z\",\"device_id\":0,\"nonce\":29601,\"token\":\"le-token-stuff\",\"ts\":1462211496,\"updated_at\":\"2016-05-02T17:52:00Z\",\"user_id\":0,\"id\":18862}}"
   )
 
