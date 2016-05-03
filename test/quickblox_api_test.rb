@@ -86,3 +86,31 @@ test "#last_response" do
   assert_equal mock_response, qb.last_response
 end
 
+test "#find_user" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
+  )
+
+  mock_response = Requests::Response.new(
+    200,
+    {},
+    "{\"user\":{\"id\":900,\"owner_id\":45,\"full_name\":\"Mr One\",\"email\":\"mister@one.com\",\"login\":\"One\",\"phone\":\"1133445566\",\"website\":null,\"created_at\":\"2016-02-10T12:07:50Z\",\"updated_at\":\"2016-03-16T17:42:27Z\",\"last_request_at\":\"2016-03-17T12:34:00Z\",\"external_user_id\":null,\"facebook_id\":null,\"twitter_id\":null,\"blob_id\":null,\"custom_data\":null,\"twitter_digits_id\":null,\"user_tags\":\"tag1,tag2\"}}"
+  )
+
+  user = stub(Requests, :request, mock_response) do
+    stub(qb, :session_token, "token") { qb.find_user(user_id: 900) }
+  end
+
+  assert user
+  assert_equal Quickblox::Models::User, user.class
+  assert_equal 900, user.id
+  assert_equal "mister@one.com", user.email
+  assert_equal "Mr One", user.full_name
+  assert_equal "1133445566", user.phone
+  assert_equal "One", user.login
+end
+

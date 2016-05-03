@@ -54,6 +54,23 @@ class Quickblox::API
     end
   end
 
+  def find_user(user_id:)
+    response = Requests.get(
+      QB_ENDPOINT + "/users/#{user_id}.json",
+      headers: {
+        QB_HEADER_API_VERSION => "0.1.1",
+        QB_HEADER_TOKEN => session_token
+      },
+    )
+
+    @last_response = response
+
+    if response.status == 200
+      user = response.json.fetch("user")
+      Quickblox::Models::User.build(user)
+    end
+  end
+
   def transcript(dialog_id:)
     response = Requests.get(
       QB_ENDPOINT + "/chat/Message.json",
