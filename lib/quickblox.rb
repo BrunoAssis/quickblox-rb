@@ -1,5 +1,5 @@
 Quickblox = Module.new
 
-require "quickblox_api"
-require "models/session"
+require_relative "quickblox_api"
+require_relative "models/session"
 
