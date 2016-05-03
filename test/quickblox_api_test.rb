@@ -1,6 +1,7 @@
 require "cutest"
 require "mocoso"
-require_relative "../lib/quickblox"
+require "quickblox"
+require "date"
 
 include Mocoso
 
@@ -46,10 +47,10 @@ test "create session" do
   )
 
   # This is a real life example of a response to POST /session.json
-  # We don't really care about the headers.
+  # We only care about the expiration header.
   mock_response = Requests::Response.new(
     201,
-    {},
+    { "qb-token-expirationdate" => ["2016-05-02 19:52:00 UTC"] },
     "{\"session\":{\"_id\":\"572793c0a28f9a658800002a\",\"application_id\":35265,\"created_at\":\"2016-05-02T17:52:00Z\",\"device_id\":0,\"nonce\":29601,\"token\":\"le-token-stuff\",\"ts\":1462211496,\"updated_at\":\"2016-05-02T17:52:00Z\",\"user_id\":0,\"id\":18862}}"
   )
 
@@ -58,6 +59,8 @@ test "create session" do
   stub(Requests, :request, mock_response) { qb.create_session }
 
   assert qb.session
-  assert_equal "le-token-stuff", qb.session.fetch("token")
+  assert_equal Quickblox::Models::Session, qb.session.class
+  assert_equal "le-token-stuff", qb.session.token
+  assert_equal DateTime.parse("2016-05-02 19:52:00 UTC"), qb.session.expiration
 end
 

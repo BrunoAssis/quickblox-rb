@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.files = `git ls-files`.split("\n")
 
   s.add_runtime_dependency "requests"
+  s.add_runtime_dependency "silueta"
 
   s.add_development_dependency "cutest"
   s.add_development_dependency "mocoso"

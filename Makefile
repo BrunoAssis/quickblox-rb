@@ -1,4 +1,4 @@
 build:
-	cutest test/**/*_test.rb
+	RUBYLIB=./lib cutest test/**/*_test.rb
 
 .PHONY: build
