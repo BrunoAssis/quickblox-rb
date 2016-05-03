@@ -64,3 +64,25 @@ test "create session" do
   assert_equal DateTime.parse("2016-05-02 19:52:00 UTC"), qb.session.expiration
 end
 
+test "#last_response" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
+  )
+
+  mock_response = Requests::Response.new(
+    201,
+    { "qb-token-expirationdate" => ["2016-05-02 19:52:00 UTC"] },
+    "{\"session\": {\"token\":\"le-token\",\"user_id\":\"5\"}}"
+  )
+
+  assert qb.last_response.nil?
+
+  stub(Requests, :request, mock_response) { qb.create_session }
+
+  assert_equal mock_response, qb.last_response
+end
+

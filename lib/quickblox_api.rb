@@ -13,7 +13,8 @@ class Quickblox::API
        :application_id,
        :email,
        :password,
-       :session
+       :session,
+       :last_response
 
   def initialize(**args)
     @auth_key       = args.fetch(:auth_key)
@@ -43,6 +44,8 @@ class Quickblox::API
       headers: { QB_HEADER_API_VERSION => "0.1.1" },
       data: data
     )
+
+    @last_response = response
 
     if response.status == 201
       session = response.json.fetch("session")
