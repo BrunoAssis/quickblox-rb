@@ -71,7 +71,33 @@ class Quickblox::API
     end
   end
 
-  def chat_transcript(dialog_id:)
+  # You can only retrieve dialogs where the authenticated user is a participant!
+  # But you can `get_messages` with the admin account, though.
+  def get_dialog(id:)
+    response = Requests.get(
+      QB_ENDPOINT + "/chat/Dialog.json",
+      headers: {
+        QB_HEADER_API_VERSION => "0.1.1",
+        QB_HEADER_TOKEN => session_token
+      },
+      params: {
+        _id: id,
+        type: 3
+      }
+    )
+
+    @last_response = response
+
+    if response.status == 200
+      dialog = response.json.fetch("items").first
+
+      if dialog
+        Quickblox::Models::Dialog.build(dialog)
+      end
+    end
+  end
+
+  def get_messages(dialog_id:)
     response = Requests.get(
       QB_ENDPOINT + "/chat/Message.json",
       headers: {
@@ -84,25 +110,30 @@ class Quickblox::API
       }
     )
 
+    @last_response = response
+
     if response.status == 200
       messages = response.json.fetch("items")
 
-      buyer, seller = [
-        find_user(user_id: messages.first.fetch("sender_id")),
-        find_user(user_id: messages.first.fetch("recipient_id"))
-      ]
-
-      Quickblox::Models::Chat.build(messages, buyer: buyer, seller: seller)
+      Quickblox::Models::Message.batch_build(messages)
     end
+  end
+
+  def chat_transcript(dialog_id:)
+    messages = get_messages(dialog_id: dialog_id)
+    occupant_ids = messages.map(&:sender_id).uniq
+    occupants = occupant_ids.map { |id| get_user(id: id) }
+
+    Quickblox::Models::Chat.build(messages: messages, occupants: occupants)
   end
 
 private
 
   def sign(data)
     normalized_string = data.each_key
-    .sort
-    .map { |key| "#{key}=#{data[key]}" }
-    .join("&")
+      .sort
+      .map { |key| "#{key}=#{data[key]}" }
+      .join("&")
 
     sha1 = OpenSSL::Digest::SHA1.new
     OpenSSL::HMAC.hexdigest(sha1, auth_secret, normalized_string)
@@ -112,3 +143,4 @@ private
     (@session || create_session).token
   end
 end
+

@@ -1,13 +1,19 @@
 require "silueta"
 require "silueta/types"
 
+module Silueta::Types
+  require "date"
+
+  DateTime = ->(value) { value && ::DateTime.parse(value) }
+end
+
 module Quickblox::Models
   class Session
     include Silueta
 
     attribute :token
     attribute :user_id, cast: Types::Integer
-    attribute :expiration, cast: ->(value) { value && DateTime.parse(value) }
+    attribute :expiration, cast: Types::DateTime
 
     def self.build(hash)
       new(
@@ -45,33 +51,60 @@ module Quickblox::Models
     include Silueta
 
     attribute :messages
-    attribute :buyer
-    attribute :seller
+    attribute :occupants
+    attribute :dialog
 
-    def self.build(messages, buyer: nil, seller: nil)
-      message_models = []
-      if buyer && seller
-        message_models = messages.map do |message|
-          Quickblox::Models::Message.new(
-            created_at: message.fetch("created_at"),
-            text: message.fetch("message"),
-            dialog_id: message.fetch("chat_dialog_id"),
-            sender: (message.fetch("sender_id") == buyer.id ? buyer : seller)
-          )
-        end
+    def self.build(messages:, occupants:, dialog: nil)
+      messages.each do |message|
+        sender = occupants.find { |occupant| occupant.id == message.sender_id }
+        message.sender = sender
       end
 
-      new(messages: message_models, buyer: buyer, seller: seller)
+      new(messages: messages, occupants: occupants, dialog: dialog)
+    end
+  end
+
+  class Dialog
+    include Silueta
+
+    attribute :id
+    attribute :occupants_ids
+    attribute :type, cast: Types::Integer
+    attribute :created_at, cast: Types::DateTime
+    attribute :updated_at, cast: Types::DateTime
+
+    def self.build(hash)
+      new(
+        id: hash.fetch("_id"),
+        occupants_ids: hash.fetch("occupants_ids"),
+        type: hash.fetch("type"),
+        created_at: hash.fetch("created_at"),
+        updated_at: hash.fetch("updated_at")
+      )
     end
   end
 
   class Message
     include Silueta
 
-    attribute :created_at
+    attribute :created_at, cast: Types::DateTime
     attribute :text
     attribute :dialog_id
+    attribute :sender_id
     attribute :sender
+
+    def self.batch_build(messages)
+      messages.map { |message| build(message) }
+    end
+
+    def self.build(message)
+      new(
+        created_at: message.fetch("created_at"),
+        text: message.fetch("message"),
+        dialog_id: message.fetch("chat_dialog_id"),
+        sender_id: message.fetch("sender_id")
+      )
+    end
   end
 end
 

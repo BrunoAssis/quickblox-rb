@@ -111,7 +111,31 @@ test "#get_user" do
   assert_equal "One", user.login
 end
 
-test "#chat_transcript" do
+test "#get_dialog" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
+  )
+
+  mock_response = Requests::Response.new(200, {}, QB_RESPONSES.fetch(:user))
+
+  user = stub(Requests, :request, mock_response) do
+    stub(qb, :session_token, "token") { qb.get_user(id: 900) }
+  end
+
+  assert user
+  assert_equal Quickblox::Models::User, user.class
+  assert_equal 900, user.id
+  assert_equal "mister@one.com", user.email
+  assert_equal "Mr One", user.full_name
+  assert_equal "1133445566", user.phone
+  assert_equal "One", user.login
+end
+
+test "#get_messages" do
   qb = Quickblox::API.new(
     auth_key: "AUTH_KEY",
     auth_secret: "AUTH_SECRET",
@@ -122,27 +146,47 @@ test "#chat_transcript" do
 
   mock_response = Requests::Response.new(200, {}, QB_RESPONSES.fetch(:messages))
 
-  mock_user = Quickblox::Models::User.new(
-    id: 12243767,
-    email: "bar@foo.com",
-    full_name: "User",
+  messages = stub(Requests, :request, mock_response) do
+    stub(qb, :session_token, "token") { qb.get_messages(dialog_id: "571f8230a0eb478939000052") }
+  end
+
+  assert messages
+  assert_equal Array, messages.class
+  assert messages.size > 0
+
+  message = messages.first
+  assert_equal Quickblox::Models::Message, message.class
+  assert_equal DateTime.parse("2016-04-26T14:58:59Z"), message.created_at
+  assert_equal "yo", message.text
+  assert_equal "571f8230a0eb478939000052", message.dialog_id
+  assert_equal 12057184, message.sender_id
+end
+
+test "#chat_transcript" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
   )
 
-  chat = stub(Requests, :request, mock_response) do
-    stub(qb, :find_user,  mock_user) do
-      stub(qb, :session_token, "token") { qb.chat_transcript(dialog_id: "5727676fa28f9a49") }
-    end
+  mock_messages = [
+    Quickblox::Models::Message.new(created_at: "2016-04-26T14:58:59Z", text: "yo", dialog_id: "le-dialog-id", sender_id: 123),
+    Quickblox::Models::Message.new(created_at: "2016-04-26T14:59:59Z", text: "hey", dialog_id: "le-dialog-id", sender_id: 123)
+  ]
+  mock_occupant = Quickblox::Models::User.new(id: 123, full_name: "Me")
+
+  chat = stub(qb, :get_messages, mock_messages) do
+    stub(qb, :get_user, mock_occupant) { qb.chat_transcript(dialog_id: "5727676fa28f9a49") }
   end
 
   assert chat
   assert_equal Quickblox::Models::Chat, chat.class
-  assert_equal mock_user, chat.buyer
-  assert_equal mock_user, chat.seller
-  assert_equal 1, chat.messages.size
+  assert_equal mock_messages, chat.messages
+  assert_equal mock_occupant, chat.occupants.first
+  assert chat.dialog.nil?
 
-  message = chat.messages.first
-  assert message
-  assert_equal Quickblox::Models::Message, message.class
-  assert_equal mock_user, message.sender
+  assert_equal mock_occupant, chat.messages.first.sender
 end
 
