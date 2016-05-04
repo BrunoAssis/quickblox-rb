@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "quickblox-rb"
-  s.version = "0.1.1"
+  s.version = "0.1.2"
   s.summary = "Ruby gem to work with Quickblox API"
   s.description = s.summary
   s.authors = ["Lucas Tolchinsky"]
@@ -10,10 +10,10 @@ Gem::Specification.new do |s|
 
   s.files = `git ls-files`.split("\n")
 
-  s.add_runtime_dependency "requests"
-  s.add_runtime_dependency "silueta"
+  s.add_runtime_dependency "requests", "~> 0"
+  s.add_runtime_dependency "silueta", "~> 0"
 
-  s.add_development_dependency "cutest"
-  s.add_development_dependency "mocoso"
+  s.add_development_dependency "cutest", "~> 0"
+  s.add_development_dependency "mocoso", "~> 0"
 end
 
