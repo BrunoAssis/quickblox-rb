@@ -1,4 +1,10 @@
-build:
+test:
 	RUBYLIB=./lib cutest test/**/*_test.rb
 
-.PHONY: build
+build:	quickblox-rb.gemspec
+	gem build $?
+
+clean:
+	rm *.gem
+
+.PHONY: test
