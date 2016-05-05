@@ -32,7 +32,7 @@ module Quickblox::Models
     attribute :email
     attribute :login
     attribute :phone
-    attribute :tags
+    attribute :tags, cast: ->(value) { value && value.split(",") }
 
     def self.build(hash)
       email = hash.fetch("email") || JSON.parse(hash.fetch("custom_data")).fetch("email")

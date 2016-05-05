@@ -109,6 +109,7 @@ test "#get_user" do
   assert_equal "Mr One", user.full_name
   assert_equal "1133445566", user.phone
   assert_equal "One", user.login
+  assert_equal ["tag1", "tag2"], user.tags
 end
 
 test "#get_dialog" do
