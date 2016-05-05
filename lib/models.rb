@@ -36,11 +36,10 @@ module Quickblox::Models
     attribute :custom_data
 
     def self.build(hash)
-      email = hash.fetch("email") || JSON.parse(hash.fetch("custom_data")).fetch("email")
       new(
         id: hash.fetch("id"),
         full_name: hash.fetch("full_name"),
-        email: email,
+        email: hash.fetch("email"),
         login: hash.fetch("login"),
         phone: hash.fetch("phone"),
         tags: hash.fetch("user_tags"),
