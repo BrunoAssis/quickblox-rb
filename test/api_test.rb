@@ -110,6 +110,7 @@ test "#get_user" do
   assert_equal "1133445566", user.phone
   assert_equal "One", user.login
   assert_equal ["tag1", "tag2"], user.tags
+  assert user.custom_data.nil?
 end
 
 test "#get_dialog" do
