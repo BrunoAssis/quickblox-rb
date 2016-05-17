@@ -92,6 +92,7 @@ module Quickblox::Models
   class Message
     include Silueta
 
+    attribute :id
     attribute :created_at, cast: Types::DateTime
     attribute :text
     attribute :dialog_id
@@ -104,6 +105,7 @@ module Quickblox::Models
 
     def self.build(message)
       new(
+        id: message.fetch("_id"),
         created_at: message.fetch("created_at"),
         text: message.fetch("message"),
         dialog_id: message.fetch("chat_dialog_id"),
