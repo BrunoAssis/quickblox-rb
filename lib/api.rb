@@ -60,7 +60,7 @@ class Quickblox::API
       headers: {
         QB_HEADER_API_VERSION => "0.1.1",
         QB_HEADER_TOKEN => session_token
-      },
+      }
     )
 
     @last_response = response
@@ -116,6 +116,29 @@ class Quickblox::API
       messages = response.json.fetch("items")
 
       Quickblox::Models::Message.batch_build(messages)
+    end
+  end
+
+  def get_dialogs
+    response = Requests.get(
+      QB_ENDPOINT + "/chat/Dialog.json",
+      headers: {
+        QB_HEADER_API_VERSION => "0.1.1",
+        QB_HEADER_TOKEN => session_token
+      },
+      params: {
+        type: 3
+      }
+    )
+
+    @last_response = response
+
+    if response.status == 200
+      dialogs = response.json.fetch("items")
+
+      if dialogs && !dialogs.empty?
+        Quickblox::Models::Dialog.batch_build(dialogs)
+      end
     end
   end
 

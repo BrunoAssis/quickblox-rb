@@ -74,6 +74,10 @@ module Quickblox::Models
     attribute :created_at, cast: Types::DateTime
     attribute :updated_at, cast: Types::DateTime
 
+    def self.batch_build(dialogs)
+      dialogs.map { |dialog| build(dialog) }
+    end
+
     def self.build(hash)
       new(
         id: hash.fetch("_id"),
