@@ -150,6 +150,17 @@ class Quickblox::API
     Quickblox::Models::Chat.build(messages: messages, occupants: occupants)
   end
 
+  def chat_transcripts(dialogs:)
+    dialogs.map do |dialog|
+      messages = get_messages(dialog_id: dialog.id)
+      occupants = dialog.occupants_ids.map { |id| get_user(id: id) }
+
+      Quickblox::Models::Chat.build(messages: messages,
+                                    occupants: occupants,
+                                    dialog: dialog)
+    end
+  end
+
 private
 
   def sign(data)

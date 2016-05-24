@@ -192,3 +192,34 @@ test "#chat_transcript" do
   assert_equal mock_occupant, chat.messages.first.sender
 end
 
+test "#chat_transcripts" do
+  qb = Quickblox::API.new(
+    auth_key: "AUTH_KEY",
+    auth_secret: "AUTH_SECRET",
+    application_id: 1234,
+    email: "account@owner.com",
+    password: "foobarbaz"
+  )
+
+  mock_messages = [
+    Quickblox::Models::Message.new(created_at: "2016-04-26T14:58:59Z", text: "yo", dialog_id: "le-dialog-id", sender_id: 123),
+    Quickblox::Models::Message.new(created_at: "2016-04-26T14:59:59Z", text: "hey", dialog_id: "le-dialog-id", sender_id: 123)
+  ]
+  mock_occupant = Quickblox::Models::User.new(id: 123, full_name: "Me")
+
+  dialog = Quickblox::Models::Dialog.new(id: "le-dialog-id", occupants_ids: [123, 123], type: 3, created_at: "2016-05-02T17:52:00Z", updated_at: "2016-05-02T17:52:00Z")
+
+  chats = stub(qb, :get_messages, mock_messages) do
+    stub(qb, :get_user, mock_occupant) { qb.chat_transcripts(dialogs: [dialog]) }
+  end
+
+  assert ! chats.empty?
+  chat = chats.first
+
+  assert_equal Quickblox::Models::Chat, chat.class
+  assert_equal dialog, chat.dialog
+  assert_equal mock_messages, chat.messages
+  assert_equal mock_occupant, chat.occupants.first
+  assert_equal mock_occupant, chat.messages.first.sender
+end
+
